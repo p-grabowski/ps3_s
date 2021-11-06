@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+    <androidx.constraintlayout.widget.ConstraintLayout tools:context=".MainActivity" android:layout_height="match_parent" android:layout_width="match_parent" xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <LinearLayout android:layout_height="match_parent" android:layout_width="match_parent" android:orientation="vertical">
+
+    <EditText android:layout_height="wrap_content" android:layout_width="match_parent" android:minHeight="80dp" android:inputType="textPersonName" android:hint="Login" android:ems="10" android:layout_marginRight="50dp" android:layout_marginTop="250dp" android:layout_marginLeft="50dp" android:id="@+id/login"/>
+
+    <EditText android:layout_height="wrap_content" android:layout_width="match_parent" android:minHeight="80dp" android:inputType="textPassword" android:hint="Hasło" android:ems="10" android:layout_marginRight="50dp" android:layout_marginLeft="50dp" android:id="@+id/password"/>
+
+    <Button android:layout_height="wrap_content" android:layout_width="match_parent" android:layout_marginRight="80dp" android:layout_marginLeft="80dp" android:id="@+id/loginButton" android:text="Zaloguj"/>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
