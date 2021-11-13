@@ -13,18 +13,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 class DataBaseHelper extends SQLiteOpenHelper {
-    private static final String DB_NAME = "logindb";
-    private static final int DB_VERSION = 2;
+    private static final String DB_NAME = "login.db";
+    private static final int DB_VERSION = 4;
     private static final String TABLE_NAME = "users";
     private static final String ID_COL = "id";
     private static final String LOGIN_COL = "login";
     private static final String PASSWORD_COL = "password";
-    private static final String IS_ADMIN_COL = "isAdmin";
-    private SQLiteDatabase sqLiteDatabase;
+    private static final String IS_ADMIN_COL = "isAdmin";       //1 - admin, 0 - user
+    private final SQLiteDatabase sqLiteDatabase;
 
     public DataBaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
-        sqLiteDatabase = getWritableDatabase();
+        sqLiteDatabase = this.getWritableDatabase();
     }
 
     @Override
@@ -33,21 +33,11 @@ class DataBaseHelper extends SQLiteOpenHelper {
                 + ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + LOGIN_COL + " TEXT,"
                 + PASSWORD_COL + " TEXT,"
-                + IS_ADMIN_COL + " TEXT)";
+                + IS_ADMIN_COL + " INTEGER)";
         db.execSQL(query);
-        /*
-        try {
-            createUser("Admin", "cisco", true);
-            createUser("user", "12345", false);
-            createUser("monitor", "1qaz", false);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        */
+     }
 
-    }
-
-    public void createUser(String login, String password, boolean isAdmin) throws NoSuchAlgorithmException {
+    public void createUser(String login, String password, int isAdmin) throws NoSuchAlgorithmException {
         ContentValues values = new ContentValues();
         values.put(LOGIN_COL, login);
         values.put(PASSWORD_COL, hashUserPassword(password));
@@ -89,11 +79,41 @@ class DataBaseHelper extends SQLiteOpenHelper {
         return result;
     }
 
+    public boolean login(String username, String password)throws NoSuchAlgorithmException{
+        password = hashUserPassword(password);
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_NAME, new String[]{PASSWORD_COL},LOGIN_COL + "=?",
+                new String[]{username},null, null, null);
+        if (cursor != null && cursor.moveToFirst()&& cursor.getCount()>0) {
+            if (password.equals(cursor.getString(0))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+//sprawdza po nazwie uzytkownika czy user jest adminem
+    public boolean checkIsAdmin (String username) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.query(TABLE_NAME, new String[]{IS_ADMIN_COL},LOGIN_COL + "=?",
+                new String[]{username},null, null, null);
+        if (res != null && res.moveToFirst()&& res.getCount()>0) {
+            return spr(res.getInt(0));
+        }
+        return false;
+    }
+
+    //zamienia 1 na true, 0 na false
+    public boolean spr(int a){
+        if(a==0)return false; else if(a==1) return true; else return false;
+    }
+
     private String hashUserPassword(String plainText) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] encodedHash = digest.digest(
                 plainText.getBytes(StandardCharsets.UTF_8));
-        return bytesToHex(encodedHash);
+        //return bytesToHex(encodedHash);
+        return plainText;       //wyłączyłem szyfrowanie dla testu
     }
 
     private static String bytesToHex(byte[] hash) {
@@ -114,13 +134,11 @@ class DataBaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-
-/////////////////////////////dodałem
-    public boolean checkUserIsExist(String username){  //sprawdz czy istnieje, jesli istanieje zwroc true, jesli nie to false
+    public boolean checkUserIsExist(String login){
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor res = db.query(TABLE_NAME, new String[]{ID_COL},LOGIN_COL + "=?",
-                new String[]{username},null, null, null);
-        if (res.getCount() > 0) return true;
+                new String[]{login},null, null, null);
+        if (res.getCount() > 0) return false;
         else return false;
     }
 }

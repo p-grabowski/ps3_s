@@ -1,5 +1,6 @@
 package com.example.ps3;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import android.widget.TextView;
@@ -9,6 +10,7 @@ public class MainActivity2 extends AppCompatActivity {
 
     TextView helloView;
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
